@@ -1,10 +1,9 @@
-process.env.TZ ||= "America/Edmonton";
-
 import bcrypt from "bcryptjs";
 import { prisma } from "../src/lib/prisma";
 import { addDays, startOfWeekMonday } from "../src/lib/time";
 
 async function main() {
+  process.env.TZ ||= "America/Edmonton";
   const passwordHash = await bcrypt.hash("zen-den-2026", 12);
   const people = [
     { name: "Maya Chen", email: "maya@zendenlog.app" },
