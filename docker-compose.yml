@@ -5,20 +5,15 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
+    env_file:
+      - .env
     environment:
-      DATABASE_URL: file:/app/data/zendenlog.db
-      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-change-me-in-production-use-a-long-random-string}
       NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
       TZ: America/Edmonton
       PORT: 3000
-    volumes:
-      - zendenlog-data:/app/data
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 30s
       timeout: 5s
       retries: 5
-      start_period: 25s
-
-volumes:
-  zendenlog-data:
+      start_period: 40s

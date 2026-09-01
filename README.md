@@ -2,6 +2,8 @@
 
 Staff check-in, weekly hours, and a shared shift board that works in the browser and as a phone home-screen app.
 
+Data lives in **MongoDB Atlas** (always on in the cloud). The site is meant to be hosted on **Vercel**, so you get a public `https://…vercel.app` URL and do not need to leave a laptop running.
+
 ## What it does
 
 - **Accounts.** Staff create a login and keep their own punch log and shifts.
@@ -13,7 +15,7 @@ Staff check-in, weekly hours, and a shared shift board that works in the browser
 
 ## Demo login
 
-After the first boot the database is seeded with:
+After the first successful database push the app seeds:
 
 - `maya@zendenlog.app`
 - `jordan@zendenlog.app`
@@ -21,35 +23,56 @@ After the first boot the database is seeded with:
 
 Password for all three: `zen-den-2026`
 
-## Run locally
+## Host it (public URL + online database)
+
+You need two free accounts. Neither runs on your phone or laptop.
+
+### 1. MongoDB Atlas (the database)
+
+1. Create a free account at [https://www.mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas).
+2. Build a **free M0** cluster (any region close to Alberta is fine).
+3. Create a database user (username + password). Save the password.
+4. Under **Network Access**, add IP `0.0.0.0/0` so Vercel’s changing IPs can connect. Atlas still requires the username/password.
+5. Click **Connect → Drivers** and copy the URI. Put the database name `zendenlog` in the path:
+
+```
+mongodb+srv://USER:PASSWORD@cluster0.xxxxx.mongodb.net/zendenlog?retryWrites=true&w=majority
+```
+
+Replace `USER` and `PASSWORD` (URL-encode special characters in the password).
+
+### 2. Vercel (the public website)
+
+1. Sign in at [https://vercel.com](https://vercel.com) with GitHub.
+2. **Add New → Project** and import `pawsp7/ZenDenLog`.
+3. Set these environment variables:
+
+| Name | Value |
+| --- | --- |
+| `DATABASE_URL` | The Atlas URI from step 1 |
+| `NEXTAUTH_SECRET` | A long random string (`openssl rand -base64 32`) |
+| `TZ` | `America/Edmonton` |
+| `NEXTAUTH_URL` | Leave blank on the first deploy, then set it to your `https://….vercel.app` URL and redeploy |
+
+4. Deploy. The build runs `prisma db push` and seeds demo users if the database is empty.
+5. Open the Vercel URL on a phone or computer. Use **Add to Home Screen** on iOS/Android.
+
+After the first deploy, copy the URL (for example `https://zendenlog.vercel.app`), set `NEXTAUTH_URL` to that exact origin, and Redeploy.
+
+## Run locally against Atlas
+
+Use the **same** Atlas cluster so local work and the public site share one database.
 
 ```bash
 cp .env.example .env
-# set NEXTAUTH_SECRET to a long random string
-mkdir -p data
+# paste DATABASE_URL and NEXTAUTH_SECRET
 npm install
 npx prisma db push
 npx prisma db seed
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). On a phone, open the same URL and use **Add to Home Screen** for the installed-app layout. Times default to **America/Edmonton** (set `TZ` to change).
-
-## Keep the database running
-
-The app uses a **file-backed SQLite database** at `data/zendenlog.db`. It does not sleep, pause, or require a separate database server. Docker Compose mounts that file on a named volume so punches and shifts survive container rebuilds and restarts.
-
-```bash
-docker compose up --build -d
-```
-
-`restart: unless-stopped` keeps the process up. `/api/health` confirms both the app and the database. Point `NEXTAUTH_URL` at the public URL you actually serve.
-
-### Hosted deploy
-
-The included `render.yaml` attaches a persistent disk at `/app/data` so the same database file stays on the host. After deploy, set `NEXTAUTH_URL` to the public `https://…` origin. Any Docker host with a persistent volume (a VPS, Fly.io, Railway) works the same way: keep `/app/data` off ephemeral disk.
-
-Do not deploy this SQLite build to a stateless serverless host (Vercel, Netlify functions) — those filesystems are wiped between requests. Use the Docker image plus a volume instead.
+Open [http://localhost:3000](http://localhost:3000). Times default to **America/Edmonton**.
 
 ## Scripts
 
@@ -58,4 +81,6 @@ Do not deploy this SQLite build to a stateless serverless host (Vercel, Netlify 
 | `npm run dev` | Local development server |
 | `npm test` | Hours and recurrence unit tests |
 | `npm run build` / `npm start` | Production server |
-| `npm run db:reset` | Recreate the database and demo data |
+| `npm run db:push` | Create/update Atlas collections from the Prisma schema |
+| `npm run db:seed` | Load demo staff and shifts |
+| `npm run db:reset` | Recreate collections and demo data |
