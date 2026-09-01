@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: zendenlog
+    runtime: docker
+    plan: starter
+    healthCheckPath: /api/health
+    disk:
+      name: zendenlog-data
+      mountPath: /app/data
+      sizeGB: 1
+    envVars:
+      - key: DATABASE_URL
+        value: file:/app/data/zendenlog.db
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      - key: NEXTAUTH_URL
+        sync: false

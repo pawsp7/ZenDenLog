@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String      @id @default(cuid())
+  name          String
+  email         String      @unique
+  passwordHash  String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  timeEntries   TimeEntry[]
+  ownedShifts   Shift[]     @relation("ShiftOwner")
+  createdShifts Shift[]     @relation("ShiftCreatedBy")
+  givenUpShifts Shift[]     @relation("ShiftGivenUpBy")
+  claimedShifts Shift[]     @relation("ShiftClaimedBy")
+}
+
+model TimeEntry {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checkInAt  DateTime
+  checkOutAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId, checkInAt])
+}
+
+model Shift {
+  id              String   @id @default(cuid())
+  title           String
+  location        String?
+  notes           String?
+  startAt         DateTime
+  endAt           DateTime
+  status          String   @default("SCHEDULED")
+  recurrence      String   @default("NONE")
+  recurrenceUntil DateTime?
+  seriesId        String?
+  ownerId         String?
+  owner           User?    @relation("ShiftOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  createdById     String
+  createdBy       User     @relation("ShiftCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
+  givenUpById     String?
+  givenUpBy       User?    @relation("ShiftGivenUpBy", fields: [givenUpById], references: [id], onDelete: SetNull)
+  claimedById     String?
+  claimedBy       User?    @relation("ShiftClaimedBy", fields: [claimedById], references: [id], onDelete: SetNull)
+  givenUpAt       DateTime?
+  claimedAt       DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([startAt, status])
+  @@index([ownerId, startAt])
+  @@index([seriesId])
+  @@index([status, startAt])
+}
