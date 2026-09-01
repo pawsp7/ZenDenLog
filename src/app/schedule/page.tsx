@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { AddShiftForm } from "@/components/AddShiftForm";
 import { GiveUpButton } from "@/components/ShiftActions";
+import { LocalDate } from "@/components/LocalDate";
 import { getCurrentUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { addDays, startOfWeekMonday, toDateInputValue } from "@/lib/time";
@@ -100,7 +101,8 @@ export default async function SchedulePage({
                     >
                       <p className="font-medium leading-tight">{shift.title}</p>
                       <p className="text-xs text-ink/65">
-                        {format(shift.startAt, "h:mm a")} – {format(shift.endAt, "h:mm a")}
+                        <LocalDate value={shift.startAt.toISOString()} preset="time" /> –{" "}
+                        <LocalDate value={shift.endAt.toISOString()} preset="time" />
                       </p>
                       <p className="text-xs text-ink/65">
                         {shift.status === "OPEN"

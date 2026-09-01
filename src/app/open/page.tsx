@@ -1,7 +1,7 @@
-import { format } from "date-fns";
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { ClaimButton } from "@/components/ShiftActions";
+import { LocalDate } from "@/components/LocalDate";
 import { getCurrentUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 
@@ -37,7 +37,8 @@ export default async function OpenShiftsPage() {
               <div>
                 <p className="font-medium">{shift.title}</p>
                 <p className="text-sm text-ink/65">
-                  {format(shift.startAt, "EEE, MMM d · h:mm a")} – {format(shift.endAt, "h:mm a")}
+                  <LocalDate value={shift.startAt.toISOString()} preset="dayTime" /> –{" "}
+                  <LocalDate value={shift.endAt.toISOString()} preset="time" />
                   {shift.location ? ` · ${shift.location}` : ""}
                 </p>
                 <p className="text-xs text-ink/50">Released by {shift.givenUpBy?.name ?? "a teammate"}</p>

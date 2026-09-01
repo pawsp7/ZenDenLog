@@ -2,6 +2,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
+import { LocalDate } from "@/components/LocalDate";
 import { getCurrentUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { addDays, formatDuration, formatHoursDecimal, startOfWeekMonday, toDateInputValue, weeklyHoursMs } from "@/lib/time";
@@ -87,13 +88,19 @@ export default async function HoursPage({
               return (
                 <li key={entry.id} className="paper-card rounded-2xl px-4 py-3 text-sm">
                   <p className="font-medium">
-                    {format(entry.checkInAt, "EEE, MMM d")} · {formatDuration(ms)}
+                    <LocalDate value={entry.checkInAt.toISOString()} preset="weekTime" /> · {formatDuration(ms)}
                     {!entry.checkOutAt ? " · live" : ""}
                   </p>
                   <p className="text-ink/65">
-                    In {format(entry.checkInAt, "h:mm:ss a")}
+                    In <LocalDate value={entry.checkInAt.toISOString()} preset="timeSeconds" />
                     {" → "}
-                    {entry.checkOutAt ? `Out ${format(entry.checkOutAt, "h:mm:ss a")}` : "Still checked in"}
+                    {entry.checkOutAt ? (
+                      <>
+                        Out <LocalDate value={entry.checkOutAt.toISOString()} preset="timeSeconds" />
+                      </>
+                    ) : (
+                      "Still checked in"
+                    )}
                   </p>
                 </li>
               );

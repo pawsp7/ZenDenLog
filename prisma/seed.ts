@@ -1,3 +1,5 @@
+process.env.TZ ||= "America/Edmonton";
+
 import bcrypt from "bcryptjs";
 import { prisma } from "../src/lib/prisma";
 import { addDays, startOfWeekMonday } from "../src/lib/time";

@@ -1,8 +1,8 @@
-import { format } from "date-fns";
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { CheckInPanel } from "@/components/CheckInPanel";
 import { LiveClock } from "@/components/LiveClock";
+import { LocalDate } from "@/components/LocalDate";
 import { getCurrentUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { formatDuration, startOfWeekMonday, weeklyHoursMs } from "@/lib/time";
@@ -65,7 +65,8 @@ export default async function HomePage() {
               <li key={shift.id} className="paper-card rounded-2xl px-4 py-3">
                 <p className="font-medium">{shift.title}</p>
                 <p className="text-sm text-ink/65">
-                  {format(shift.startAt, "h:mm a")} – {format(shift.endAt, "h:mm a")}
+                  <LocalDate value={shift.startAt.toISOString()} preset="time" /> –{" "}
+                  <LocalDate value={shift.endAt.toISOString()} preset="time" />
                   {shift.location ? ` · ${shift.location}` : ""}
                   {shift.recurrence === "WEEKLY" ? " · weekly" : ""}
                 </p>
