@@ -15,3 +15,5 @@ services:
         generateValue: true
       - key: NEXTAUTH_URL
         sync: false
+      - key: TZ
+        value: America/Edmonton

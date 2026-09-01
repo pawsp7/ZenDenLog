@@ -33,7 +33,7 @@ npx prisma db seed
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). On a phone, open the same URL and use **Add to Home Screen** for the installed-app layout.
+Open [http://localhost:3000](http://localhost:3000). On a phone, open the same URL and use **Add to Home Screen** for the installed-app layout. Times default to **America/Edmonton** (set `TZ` to change).
 
 ## Keep the database running
 

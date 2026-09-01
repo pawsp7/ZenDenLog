@@ -17,13 +17,18 @@ export function AddShiftForm() {
     setBusy(true);
     setError("");
     const form = new FormData(event.currentTarget);
+    const date = String(form.get("date") ?? "");
+    const startTime = String(form.get("startTime") ?? "");
+    const endTime = String(form.get("endTime") ?? "");
     const payload = {
       title: String(form.get("title") ?? ""),
       location: String(form.get("location") ?? ""),
       notes: String(form.get("notes") ?? ""),
-      date: String(form.get("date") ?? ""),
-      startTime: String(form.get("startTime") ?? ""),
-      endTime: String(form.get("endTime") ?? ""),
+      date,
+      startTime,
+      endTime,
+      startAt: new Date(`${date}T${startTime}:00`).toISOString(),
+      endAt: new Date(`${date}T${endTime}:00`).toISOString(),
       recurrence: String(form.get("recurrence") ?? "NONE"),
       recurrenceUntil: String(form.get("recurrenceUntil") ?? ""),
     };

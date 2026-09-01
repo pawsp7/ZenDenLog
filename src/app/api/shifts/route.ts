@@ -10,9 +10,11 @@ const createSchema = z.object({
   title: z.string().trim().min(2).max(80),
   location: z.string().trim().max(80).optional().or(z.literal("")),
   notes: z.string().trim().max(400).optional().or(z.literal("")),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  startTime: z.string().regex(/^\d{2}:\d{2}$/),
-  endTime: z.string().regex(/^\d{2}:\d{2}$/),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+  endTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+  startAt: z.string().optional(),
+  endAt: z.string().optional(),
   recurrence: z.enum(["NONE", "WEEKLY"]).default("NONE"),
   recurrenceUntil: z
     .string()
@@ -64,8 +66,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Check the shift details and try again." }, { status: 400 });
   }
 
-  const startAt = combineLocalDateAndTime(parsed.data.date, parsed.data.startTime);
-  const endAt = combineLocalDateAndTime(parsed.data.date, parsed.data.endTime);
+  const startAt = parsed.data.startAt
+    ? new Date(parsed.data.startAt)
+    : parsed.data.date && parsed.data.startTime
+      ? combineLocalDateAndTime(parsed.data.date, parsed.data.startTime)
+      : null;
+  const endAt = parsed.data.endAt
+    ? new Date(parsed.data.endAt)
+    : parsed.data.date && parsed.data.endTime
+      ? combineLocalDateAndTime(parsed.data.date, parsed.data.endTime)
+      : null;
+  if (!startAt || !endAt || Number.isNaN(startAt.getTime()) || Number.isNaN(endAt.getTime())) {
+    return NextResponse.json({ error: "Start and end times are required." }, { status: 400 });
+  }
   if (endAt.getTime() <= startAt.getTime()) {
     return NextResponse.json({ error: "End time must be after start time." }, { status: 400 });
   }

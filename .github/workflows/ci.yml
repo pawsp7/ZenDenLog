@@ -12,6 +12,7 @@ jobs:
       DATABASE_URL: file:../data/zendenlog.db
       NEXTAUTH_SECRET: ci-secret-not-for-production
       NEXTAUTH_URL: http://localhost:3000
+      TZ: America/Edmonton
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
