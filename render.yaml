@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: zendenlog
+    runtime: docker
+    plan: starter
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      - key: NEXTAUTH_URL
+        sync: false
+      - key: TZ
+        value: America/Edmonton

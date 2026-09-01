@@ -1,0 +1,24 @@
+name: ci
+
+on:
+  push:
+    branches: [main, "cursor/**"]
+  pull_request:
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: mongodb://127.0.0.1:27017/zendenlog
+      NEXTAUTH_SECRET: ci-secret-not-for-production
+      NEXTAUTH_URL: http://localhost:3000
+      TZ: America/Edmonton
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
